@@ -28,10 +28,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class JwtUserDetailService implements UserDetailsService {
@@ -86,7 +83,7 @@ public class JwtUserDetailService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Username is not valid"))
                 .toDto();
 
-        return new org.springframework.security.core.userdetails.User(user.getId(), null, getAuthorities(user));
+        return new org.springframework.security.core.userdetails.User(Objects.toString(user.getId()), null, getAuthorities(user));
     }
 
     public UserDetails loadUserByToken(String token) {

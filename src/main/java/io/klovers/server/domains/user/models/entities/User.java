@@ -25,9 +25,8 @@ import org.hibernate.annotations.GenericGenerator;
 )
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "hexStringGenerator")
-    @GenericGenerator(name = "hexStringGenerator")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(unique = true, length = 20)
     private String username;

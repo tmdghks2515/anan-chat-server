@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 public class ReqMsgSendDto {
     private String content;
-    private String senderId;
-    private String recipientId;
+    private Long senderId;
+    private Long recipientId;
 }

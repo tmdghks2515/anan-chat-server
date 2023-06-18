@@ -22,10 +22,8 @@ import java.time.LocalDateTime;
 @Builder
 public class Message extends BaseTimeEntity {
     @Id
-    /* 16진수 generator (bulk insert 시킬때 bulk 쿼리가 나가는지 확인 필요. bulk 쿼리가 나가지 않는다면 성능저하 됨으로 bulk 쿼리 나가도록 설정 필요) */
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "hexStringGenerator")
-    @GenericGenerator(name = "hexStringGenerator")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne /* ToOne - default fetch type: Eager */
     @JoinColumn(name = "sender_id")

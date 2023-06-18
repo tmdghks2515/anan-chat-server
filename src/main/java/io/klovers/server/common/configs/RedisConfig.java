@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -13,15 +14,9 @@ public class RedisConfig {
 
     // redis 와 connection 을 생성해 주는 객체
     @Bean
-    JedisConnectionFactory jedisConnectionFactory() {
-
-        RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
-        redisConfig.setHostName("127.0.0.1");
-        redisConfig.setPort(6379);
-
-        return new JedisConnectionFactory(redisConfig);
+    public LettuceConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory("localhost", 6379);
     }
-
 
     /*
     * RedisTemplate
@@ -34,7 +29,7 @@ public class RedisConfig {
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(jedisConnectionFactory());
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
 
         // 일반적인 key:value 의 경우 시리얼라이저
         redisTemplate.setKeySerializer(new StringRedisSerializer());
@@ -55,7 +50,7 @@ public class RedisConfig {
         final StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
         stringRedisTemplate.setKeySerializer(new StringRedisSerializer());
         stringRedisTemplate.setValueSerializer(new StringRedisSerializer());
-        stringRedisTemplate.setConnectionFactory(jedisConnectionFactory());
+        stringRedisTemplate.setConnectionFactory(redisConnectionFactory());
         return stringRedisTemplate;
     }
 

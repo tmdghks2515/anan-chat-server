@@ -1,6 +1,33 @@
 spring:
+
   jpa:
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true # ddl 사용가능, 기본값 false
     properties:
       hibernate:
         id:
           new_generator_mappings: true
+        # show_sql: true
+        format_sql: true
+        default_batch_fetch_size: 100
+        # use_sql_comments: true
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3307/klovers
+    username: anan2
+    password: kuaile2515!
+
+jwt:
+  secret: BvPHGM8C0ia4uOuxxqPD5DTbWC9F9TWvPStp3pb7CRo0oK2mJ3pd3FG4lxA9i8bj6OTbadwezxgeEByY
+  expiration: 3600 # 1시간
+  #  expiration: 10 # 10초
+  refresh_expiration: 2592000 # 1 달
+
+front_domain: localhost

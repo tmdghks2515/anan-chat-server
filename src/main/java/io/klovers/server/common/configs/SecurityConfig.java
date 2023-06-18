@@ -45,7 +45,7 @@ public class SecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers("/images/**", "/js/**");
     }
-
+/*
     @Bean
     public DataSource dataSource() {
         return new EmbeddedDatabaseBuilder()
@@ -64,5 +64,5 @@ public class SecurityConfig {
         JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
         users.createUser(user);
         return users;
-    }
+    }*/
 }
