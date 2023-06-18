@@ -65,4 +65,13 @@ public class User {
                 .role(role.toCodeDto())
                 .build();
     }
+
+    public UserDto toDtoForAuth() {
+        return UserDto.builder()
+                .id(id)
+                .username(username)
+                .role(role.toCodeDto())
+                .password(password)
+                .build();
+    }
 }

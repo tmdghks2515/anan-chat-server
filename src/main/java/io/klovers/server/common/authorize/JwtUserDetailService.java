@@ -1,4 +1,4 @@
-package io.klovers.server.common.authorize.services;
+package io.klovers.server.common.authorize;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -81,9 +81,9 @@ public class JwtUserDetailService implements UserDetailsService {
         UserDto user = userRepo
                 .findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username is not valid"))
-                .toDto();
+                .toDtoForAuth();
 
-        return new org.springframework.security.core.userdetails.User(Objects.toString(user.getId()), null, getAuthorities(user));
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), getAuthorities(user));
     }
 
     public UserDetails loadUserByToken(String token) {

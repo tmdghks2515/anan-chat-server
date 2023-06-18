@@ -18,4 +18,5 @@ public class UserDto {
     private String profileSrc;
     private CodeDto gender;
     private CodeDto role;
+    private String password;
 }

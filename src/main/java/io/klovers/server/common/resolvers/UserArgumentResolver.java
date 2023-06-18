@@ -25,6 +25,9 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        if (!authentication.isAuthenticated() && "anonymousUser".equals(authentication.getName()))
+            return null;
+
         Role role = Role.valueOf(
                 authentication.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
@@ -33,7 +36,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         );
 
         return UserDto.builder()
-                .id(Long.parseLong(authentication.getName()))
+                .username(authentication.getName())
                 .role(
                         CodeDto.builder()
                             .value(role.name())

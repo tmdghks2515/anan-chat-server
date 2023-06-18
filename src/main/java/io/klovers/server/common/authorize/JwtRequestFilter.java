@@ -1,8 +1,7 @@
-package io.klovers.server.common.authorize.filters;
+package io.klovers.server.common.authorize;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.klovers.server.common.authorize.services.JwtUserDetailService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;

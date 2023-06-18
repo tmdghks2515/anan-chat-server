@@ -18,7 +18,7 @@ public class ServerApplication {
 	}
 
 	@Bean
-	public UserArgumentResolver userDataArgumentResolver() {
+	public UserArgumentResolver userArgumentResolver() {
 		return new UserArgumentResolver();
 	}
 

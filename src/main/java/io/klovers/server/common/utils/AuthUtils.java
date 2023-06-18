@@ -57,7 +57,7 @@ public class AuthUtils {
 
     public String generate(UserDetails user, String type) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("id", user.getUsername());
+        claims.put("username", user.getUsername());
         claims.put("password", user.getPassword());
         claims.put("role", user.getAuthorities());
         return doGenerateToken(claims, user.getUsername(), type);
