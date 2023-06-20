@@ -1,6 +1,7 @@
 package io.klovers.server.domains.message.models.entities;
 
 import io.klovers.server.common.models.entities.BaseTimeEntity;
+import io.klovers.server.domains.message.models.dtos.MessageDto;
 import io.klovers.server.domains.user.models.entities.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -39,4 +40,15 @@ public class Message extends BaseTimeEntity {
 
     @Column(columnDefinition = "boolean default false")
     private boolean deleted;
+
+    public MessageDto toDto() {
+        return MessageDto.builder()
+                .id(id)
+                .content(content)
+                .sender(sender.toDto())
+                .recipient(recipient.toDto())
+                .regTs(getRegTs())
+                .modTs(getModTs())
+                .build();
+    }
 }

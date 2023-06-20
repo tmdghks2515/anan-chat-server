@@ -1,7 +1,8 @@
 package io.klovers.server.domains.message.services;
 
+import io.klovers.server.domains.message.models.dtos.MessageDto;
 import io.klovers.server.domains.message.models.dtos.ReqMsgSendDto;
 
 public interface ChatService {
-    void send(ReqMsgSendDto reqDto);
+    MessageDto send(ReqMsgSendDto reqDto);
 }
