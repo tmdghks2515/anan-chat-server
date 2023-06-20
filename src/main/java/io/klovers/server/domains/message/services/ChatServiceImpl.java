@@ -27,7 +27,7 @@ public class ChatServiceImpl implements ChatService {
                         )
                         .recipient(
                                 userRepo
-                                    .findById(reqDto.getRecipientId())
+                                    .findByUsername(reqDto.getRecipientUsername())
                                     .orElseThrow(() -> new ApiException("존재하지 않는 수신자 입니다."))
                         )
                         .content(reqDto.getContent())
