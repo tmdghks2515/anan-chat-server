@@ -1,4 +1,4 @@
-package io.klovers.server.domains.message.models.dtos;
+package io.klovers.server.domains.chat.models.dtos;
 
 import io.klovers.server.domains.user.models.dtos.UserDto;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,7 @@ public class MessageDto {
     private Long id;
     private String content;
     private UserDto sender;
-    private UserDto recipient;
+    private ChatDto chat;
     private LocalDateTime regTs;
     private LocalDateTime modTs;
 }

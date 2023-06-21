@@ -4,10 +4,14 @@ import io.klovers.server.common.codes.Role;
 import io.klovers.server.common.exceptions.ApiException;
 import io.klovers.server.common.utils.AuthUtils;
 import io.klovers.server.domains.user.models.dtos.ReqSignUpDto;
+import io.klovers.server.domains.user.models.dtos.UserDto;
 import io.klovers.server.domains.user.models.entities.User;
 import io.klovers.server.domains.user.repositories.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,5 +48,14 @@ public class UserServiceImpl implements UserService {
                 .role(Role.MEMBER)
                 .build();
         userRepo.save(user);
+    }
+
+    @Override
+    public List<UserDto> list(UserDto userDto) {
+        return userRepo
+                .findByUsernameNot(userDto.getUsername())
+                .stream()
+                .map(User::toDto)
+                .collect(Collectors.toList());
     }
 }

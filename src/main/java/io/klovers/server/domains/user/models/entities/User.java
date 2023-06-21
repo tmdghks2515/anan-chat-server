@@ -4,6 +4,7 @@ import io.klovers.server.common.codes.Gender;
 import io.klovers.server.common.codes.Role;
 import io.klovers.server.common.codes.converters.GenderConverter;
 import io.klovers.server.common.codes.converters.RoleConverter;
+import io.klovers.server.domains.chat.models.entities.Chat;
 import io.klovers.server.domains.user.models.dtos.UserDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.GenericGenerator;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -25,17 +28,14 @@ import org.hibernate.annotations.GenericGenerator;
 )
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true, length = 20)
+    @Column(unique = true)
     private String username;
 
     private String password;
 
     private String salt;
 
-    @Column(unique = true, length = 30)
+    @Column(unique = true)
     private String nickname;
 
     private int age;
@@ -52,9 +52,11 @@ public class User {
     @Convert(converter = RoleConverter.class)
     private Role role;
 
+    @ManyToMany(mappedBy = "participants")
+    private List<Chat> chats;
+
     public UserDto toDto() {
         return UserDto.builder()
-                .id(id)
                 .username(username)
                 .nickname(nickname)
                 .age(age)
@@ -68,7 +70,6 @@ public class User {
 
     public UserDto toDtoForAuth() {
         return UserDto.builder()
-                .id(id)
                 .username(username)
                 .role(role.toCodeDto())
                 .password(password)

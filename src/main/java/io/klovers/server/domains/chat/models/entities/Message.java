@@ -1,7 +1,7 @@
-package io.klovers.server.domains.message.models.entities;
+package io.klovers.server.domains.chat.models.entities;
 
 import io.klovers.server.common.models.entities.BaseTimeEntity;
-import io.klovers.server.domains.message.models.dtos.MessageDto;
+import io.klovers.server.domains.chat.models.dtos.MessageDto;
 import io.klovers.server.domains.user.models.entities.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,11 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -27,14 +24,14 @@ public class Message extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne /* ToOne - default fetch type: Eager */
-    @JoinColumn(name = "sender_id")
+    @JoinColumn(name = "sender")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "recipient_id")
+    @JoinColumn(name = "chat_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private User recipient;
+    private Chat chat;
 
     private String content;
 
@@ -46,7 +43,7 @@ public class Message extends BaseTimeEntity {
                 .id(id)
                 .content(content)
                 .sender(sender.toDto())
-                .recipient(recipient.toDto())
+                .chat(chat.toDto())
                 .regTs(getRegTs())
                 .modTs(getModTs())
                 .build();

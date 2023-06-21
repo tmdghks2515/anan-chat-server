@@ -1,8 +1,8 @@
 package io.klovers.server.common.configs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.klovers.server.domains.message.models.dtos.ReqMsgSendDto;
-import io.klovers.server.domains.message.services.ChatService;
+import io.klovers.server.domains.chat.models.dtos.ReqMsgSendDto;
+import io.klovers.server.domains.chat.services.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +35,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 log.info("*********************** afterConnectionEstablished **************************");
                 if (isNull(session.getPrincipal()) || isEmpty(session.getPrincipal().getName()))
                     return;
-                addSession(session.getPrincipal().getName(), session);
+                if (isNull(getSession(session.getPrincipal().getName())))
+                    addSession(session.getPrincipal().getName(), session);
             }
 
             @Override
@@ -49,8 +50,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 WebSocketMessage<String> resultMessage = new TextMessage(objectMapper.writeValueAsString(chatService.send(msgDto)));
                 session.sendMessage(resultMessage);
 
-                WebSocketSession recipientSession = getSession(msgDto.getRecipientUsername());
-                recipientSession.sendMessage(resultMessage);
+//                WebSocketSession recipientSession = getSession(msgDto.getRecipientUsername());
+//                recipientSession.sendMessage(resultMessage);
             }
 
             @Override
