@@ -3,6 +3,7 @@ package io.klovers.server.domains.chat.controllers;
 
 import io.klovers.server.domains.chat.models.dtos.ChatDto;
 import io.klovers.server.domains.chat.models.dtos.MessageDto;
+import io.klovers.server.domains.chat.models.dtos.ReqGetChatDto;
 import io.klovers.server.domains.chat.models.dtos.ReqMsgSendDto;
 import io.klovers.server.domains.chat.services.ChatService;
 import io.klovers.server.domains.user.models.dtos.UserDto;
@@ -11,10 +12,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -34,10 +32,10 @@ public class ChatController {
         return chatService.send(reqDto);
     }*/
 
-    @GetMapping("/get")
-    public ChatDto getChat(@RequestParam List<Long> participantIds, UserDto userDto) {
-//        participantIds.add(userDto.get);
-//        return chatService.getChat(participants);
-        return null;
+    @PostMapping("/get")
+    public ChatDto getChat(@RequestBody ReqGetChatDto dto, UserDto userDto) {
+        List<String> participants = dto.getParticipants();
+        participants.add(userDto.getUsername());
+        return chatService.getChat(participants);
     }
 }

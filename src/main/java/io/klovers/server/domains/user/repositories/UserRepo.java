@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserRepo extends JpaRepository<User, Long>, UserRepoCustom {
+public interface UserRepo extends JpaRepository<User, String>, UserRepoCustom {
     Optional<User> findByUsername(String username);
     List<User> findByUsernameNot(String username);
     Optional<User> findByNickname(String nickname);
