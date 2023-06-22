@@ -49,20 +49,20 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDto getChat(List<String> participantUsernames) {
+    public Long getChatId(List<String> participantUsernames) {
         List<User> participants = userRepo.findAllById(participantUsernames);
 
         /* 해당 멤버로 구성된 채팅방이 이미 존재하는지 조회 */
-        List<Chat> chats = chatRepo.findByParticipantsIn(participants);
+        List<Long> chatIds = chatRepo.findIdsByParticipantsIn(participantUsernames, participantUsernames.size());
 
-        if (chats.size() > 0) {
-            return chats.get(0).toDto();
+        if (chatIds.size() > 0) {
+            return chatIds.get(0);
         } else {
             return chatRepo.save(
                     Chat.builder()
                             .participants(participants)
                             .build()
-            ).toDto();
+            ).getId();
         }
     }
 

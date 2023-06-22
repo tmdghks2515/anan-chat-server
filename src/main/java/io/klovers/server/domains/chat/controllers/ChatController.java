@@ -29,11 +29,11 @@ public class ChatController {
         return chatService.send(reqDto);
     }*/
 
-    @PostMapping("/get")
-    public ChatDto getChat(@RequestBody ReqGetChatDto dto, UserDto userDto) {
+    @PostMapping("/getId")
+    public Long getChatId(@RequestBody ReqGetChatDto dto, UserDto userDto) {
         List<String> participants = dto.getParticipants();
         participants.add(userDto.getUsername());
-        return chatService.getChat(participants);
+        return chatService.getChatId(participants);
     }
 
     @GetMapping("/read")

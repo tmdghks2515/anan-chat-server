@@ -12,12 +12,22 @@ import java.util.Set;
 
 public interface ChatRepo extends JpaRepository<Chat, Long>, ChatRepoCustom {
 
-    @Query("""
-        SELECT DISTINCT c
-        FROM Chat c
-        JOIN FETCH c.participants p
-        WHERE c.participants IN :participants 
-    """)
-    List<Chat> findByParticipantsIn(@Param("participants") List<User> participants);
+    @Query(value = """
+        SELECT c.id
+        FROM chat c
+        JOIN user_chat_map ucm ON c.id = ucm.chat_id
+        JOIN user u ON ucm.participant = u.username
+        WHERE u.username IN :participants
+        GROUP BY c.id
+        HAVING COUNT(DISTINCT u.username) = :participantsCount
+           AND NOT EXISTS (
+              SELECT 1
+              FROM user_chat_map ucm2
+              JOIN user u2 ON ucm2.participant = u2.username
+              WHERE ucm2.chat_id = c.id
+              AND u2.username NOT IN :participants
+           );
+    """, nativeQuery = true)
+    List<Long> findIdsByParticipantsIn(@Param("participants") List<String> participants, @Param("ParticipantsCount") int participantsCount);
     List<Chat> findByParticipantsOrderByModTsDesc(User participant);
 }

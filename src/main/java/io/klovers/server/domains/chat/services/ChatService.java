@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface ChatService {
     MessageDto send(ReqMsgSendDto reqDto);
-    ChatDto getChat(List<String> participants);
+    Long getChatId(List<String> participants);
     ChatDto readChat(Long chatId, UserDto userDto);
     ListResDto<MessageDto> getMessages(Long chatId, Pageable pageable, UserDto userDto);
     List<ChatDto> getMyChats(String username);
