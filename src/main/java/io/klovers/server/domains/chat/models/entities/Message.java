@@ -43,7 +43,6 @@ public class Message extends BaseTimeEntity {
                 .id(id)
                 .content(content)
                 .sender(sender.toDto())
-                .chat(chat.toDto())
                 .regTs(getRegTs())
                 .modTs(getModTs())
                 .build();

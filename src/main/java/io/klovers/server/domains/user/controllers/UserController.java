@@ -1,6 +1,7 @@
 package io.klovers.server.domains.user.controllers;
 
 import io.klovers.server.common.authorize.JwtUserDetailService;
+import io.klovers.server.common.exceptions.ApiException;
 import io.klovers.server.domains.user.models.dtos.ReqLoginDto;
 import io.klovers.server.domains.user.models.dtos.ReqSignUpDto;
 import io.klovers.server.domains.user.models.dtos.UserDto;

@@ -1,5 +1,6 @@
 package io.klovers.server.domains.user.services;
 
+import io.klovers.server.common.exceptions.ApiException;
 import io.klovers.server.domains.user.models.dtos.ReqSignUpDto;
 import io.klovers.server.domains.user.models.dtos.UserDto;
 

@@ -1,7 +1,7 @@
 package io.klovers.server.common.configs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.klovers.server.domains.chat.models.dtos.ReqMsgSendDto;
+import io.klovers.server.domains.chat.models.dtos.req.ReqMsgSendDto;
 import io.klovers.server.domains.chat.services.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +11,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static io.micrometer.common.util.StringUtils.isEmpty;
 import static java.util.Objects.isNull;
@@ -25,7 +23,7 @@ import static java.util.Objects.isNull;
 public class WebSocketConfig implements WebSocketConfigurer {
     private final ObjectMapper objectMapper;
     private final ChatService chatService;
-    private final Map<String, WebSocketSession> sessions = new HashMap<>();
+    private final Map<Long, Set<WebSocketSession>> sessionsMap = new HashMap<>();
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
@@ -33,10 +31,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
             @Override
             public void afterConnectionEstablished(WebSocketSession session) throws Exception {
                 log.info("*********************** afterConnectionEstablished **************************");
-                if (isNull(session.getPrincipal()) || isEmpty(session.getPrincipal().getName()))
-                    return;
-                if (isNull(getSession(session.getPrincipal().getName())))
-                    addSession(session.getPrincipal().getName(), session);
+                addSession(session);
             }
 
             @Override
@@ -48,10 +43,11 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 msgDto.setSenderUsername(session.getPrincipal().getName());
 
                 WebSocketMessage<String> resultMessage = new TextMessage(objectMapper.writeValueAsString(chatService.send(msgDto)));
-                session.sendMessage(resultMessage);
 
-//                WebSocketSession recipientSession = getSession(msgDto.getRecipientUsername());
-//                recipientSession.sendMessage(resultMessage);
+                // 해당 하는 socket sessions 에게 메시지 발송
+                Set<WebSocketSession> sessions = sessionsMap.get(msgDto.getChatId());
+                for (WebSocketSession participantSession : sessions)
+                    participantSession.sendMessage(resultMessage);
             }
 
             @Override
@@ -62,9 +58,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
             @Override
             public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
                 log.info("*********************** afterConnectionClosed **************************");
-                if (isNull(session.getPrincipal()) || isEmpty(session.getPrincipal().getName()))
-                    return;
-                removeSession(session.getPrincipal().getName());
+                removeSession(session);
             }
 
             @Override
@@ -72,18 +66,44 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 log.info("*********************** supportsPartialMessages **************************");
                 return false;
             }
-        }, "/websocket").setAllowedOrigins("*");
+        }, "/api/websocket/**").setAllowedOrigins("*");
     }
 
-    public WebSocketSession getSession(String userId) {
-        return sessions.get(userId);
+    private void addSession(WebSocketSession session) {
+        Long chatId = getChatIdFromSession(session);
+        Set<WebSocketSession> prevSessions = sessionsMap.get(chatId);
+
+        // chatId 에 해당하는 sessions 가 없는 경우 새로 만들어줌
+        if (prevSessions == null) {
+            Set<WebSocketSession> sessions = new HashSet<>();
+            sessions.add(session);
+            sessionsMap.put(chatId, sessions);
+        }
+        // chatId 에 해당하는 sessions 가 이미 존재하는 경우 add session
+        else {
+            prevSessions.add(session);
+            sessionsMap.put(chatId, prevSessions);
+        }
     }
 
-    public void addSession(String userId, WebSocketSession session) {
-        sessions.put(userId, session);
+    private void removeSession(WebSocketSession session) {
+        Long chatId = getChatIdFromSession(session);
+        Set<WebSocketSession> prevSessions = sessionsMap.get(chatId);
+
+        // chatId 에 해당하는 sessions 가 존재할시 해당 session remove
+        if (prevSessions != null && !prevSessions.isEmpty()) {
+            prevSessions.remove(session);
+        }
     }
 
-    public void removeSession(String userId) {
-        sessions.remove(userId);
+    private Long getChatIdFromSession(WebSocketSession session) {
+        String path = Objects
+                .requireNonNull(session.getUri())
+                .getPath();
+
+        return Long
+                .parseLong(
+                        path.substring(path.lastIndexOf("/") + 1)
+                );
     }
 }

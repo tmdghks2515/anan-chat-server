@@ -1,17 +1,14 @@
 package io.klovers.server.domains.chat.controllers;
 
 
+import io.klovers.server.common.models.dtos.ListResDto;
 import io.klovers.server.domains.chat.models.dtos.ChatDto;
 import io.klovers.server.domains.chat.models.dtos.MessageDto;
-import io.klovers.server.domains.chat.models.dtos.ReqGetChatDto;
-import io.klovers.server.domains.chat.models.dtos.ReqMsgSendDto;
+import io.klovers.server.domains.chat.models.dtos.req.ReqGetChatDto;
 import io.klovers.server.domains.chat.services.ChatService;
 import io.klovers.server.domains.user.models.dtos.UserDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.stereotype.Controller;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,5 +34,21 @@ public class ChatController {
         List<String> participants = dto.getParticipants();
         participants.add(userDto.getUsername());
         return chatService.getChat(participants);
+    }
+
+    @GetMapping("/read")
+    public ChatDto readChat(Long chatId, UserDto userDto) {
+
+        return chatService.readChat(chatId, userDto);
+    }
+
+    @GetMapping("/messages")
+    public ListResDto<MessageDto> getMessages(Long chatId, Pageable pageable, UserDto userDto) {
+        return chatService.getMessages(chatId, pageable, userDto);
+    }
+    
+    @GetMapping("/myChats")
+    public List<ChatDto> getMyChats(UserDto userDto) {
+        return chatService.getMyChats(userDto.getUsername());
     }
 }

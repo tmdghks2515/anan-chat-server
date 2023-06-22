@@ -58,7 +58,7 @@ public class JwtUserDetailService implements UserDetailsService {
         this.redisUtils = redisUtils;
     }
 
-    public UserDto createJwtToken(ReqLoginDto data, HttpServletResponse res) throws ApiException, UnsupportedEncodingException, UsernameNotFoundException {
+    public UserDto createJwtToken(ReqLoginDto data, HttpServletResponse res) throws UnsupportedEncodingException, UsernameNotFoundException {
         String username = data.getUsername();
         String password = data.getPassword();
         // 아이디 패스워드 체크
@@ -103,7 +103,7 @@ public class JwtUserDetailService implements UserDetailsService {
         return authorities;
     }
 
-    private void authenticate(String userName, String userPassword) throws ApiException {
+    private void authenticate(String userName, String userPassword) {
         try {
             authenticationManagerBean.authenticate(new UsernamePasswordAuthenticationToken(userName, userPassword));
         } catch (DisabledException | BadCredentialsException e) {
@@ -111,7 +111,7 @@ public class JwtUserDetailService implements UserDetailsService {
         }
     }
 
-    private UserDto createUserDto(String username) throws ApiException {
+    private UserDto createUserDto(String username) {
         /* if (UserDto.getWithdrawn())
                     throw new ApiException("이미 탈퇴한 계정 입니다");
                 if (!UserDto.getActive())
@@ -122,7 +122,7 @@ public class JwtUserDetailService implements UserDetailsService {
                 .toDto();
     }
 
-    public UserDto autoSignIn(HttpServletRequest req) throws ApiException{
+    public UserDto autoSignIn(HttpServletRequest req) {
         final String header = req.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             String jwtToken = header.substring(7);
