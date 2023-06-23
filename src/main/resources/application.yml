@@ -1,3 +1,6 @@
+server:
+  port: 8081
+
 spring:
 
   jpa:
@@ -8,7 +11,7 @@ spring:
       hibernate:
         id:
           new_generator_mappings: true
-        # show_sql: true
+        show_sql: true
         format_sql: true
         default_batch_fetch_size: 100
         # use_sql_comments: true
@@ -20,7 +23,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/klovers
+    url: jdbc:mysql://localhost:3306/klovers
     username: anan2
     password: kuaile2515!
 
@@ -31,3 +34,7 @@ jwt:
   refresh_expiration: 2592000 # 1 달
 
 front_domain: localhost
+
+papago:
+  client-id: 4kDAauR1xX6x_ysJov0e
+  client-secret: TZFw6KpwTZ

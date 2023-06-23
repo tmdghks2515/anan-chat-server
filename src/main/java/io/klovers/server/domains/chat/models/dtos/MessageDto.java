@@ -1,14 +1,12 @@
 package io.klovers.server.domains.chat.models.dtos;
 
 import io.klovers.server.domains.user.models.dtos.UserDto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

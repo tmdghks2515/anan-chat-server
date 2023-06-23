@@ -2,15 +2,20 @@ package io.klovers.server.domains.chat.controllers;
 
 
 import io.klovers.server.common.models.dtos.ListResDto;
+import io.klovers.server.common.papago.PapagoTranslationService;
 import io.klovers.server.domains.chat.models.dtos.ChatDto;
 import io.klovers.server.domains.chat.models.dtos.MessageDto;
 import io.klovers.server.domains.chat.models.dtos.req.ReqGetChatDto;
+import io.klovers.server.domains.chat.models.dtos.req.ReqGetMessagesDto;
 import io.klovers.server.domains.chat.services.ChatService;
 import io.klovers.server.domains.user.models.dtos.UserDto;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @RestController
@@ -18,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatController {
     private final ChatService chatService;
+    private final PapagoTranslationService papagoTranslationService;
 
 /*    @MessageMapping("/send")
     @SendToUser("/queue/receive-message") // Send the message to the user's specific queue
@@ -43,12 +49,18 @@ public class ChatController {
     }
 
     @GetMapping("/messages")
-    public ListResDto<MessageDto> getMessages(Long chatId, Pageable pageable, UserDto userDto) {
-        return chatService.getMessages(chatId, pageable, userDto);
+    public ListResDto<MessageDto> getMessages(ReqGetMessagesDto reqDto, UserDto userDto) {
+        reqDto.setParticipantUsername(userDto.getUsername());
+        return chatService.getMessages(reqDto);
     }
     
     @GetMapping("/myChats")
     public List<ChatDto> getMyChats(UserDto userDto) {
         return chatService.getMyChats(userDto.getUsername());
+    }
+
+    @GetMapping("/translate")
+    public String test(String text, String targetLang) {
+        return papagoTranslationService.translateText(text, targetLang);
     }
 }
