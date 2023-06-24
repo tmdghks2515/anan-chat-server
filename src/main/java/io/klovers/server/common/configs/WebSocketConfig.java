@@ -1,7 +1,12 @@
 package io.klovers.server.common.configs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.klovers.server.common.codes.Language;
 import io.klovers.server.common.models.dtos.SocketSessionDto;
+import io.klovers.server.common.papago.PapagoTranslationService;
+import io.klovers.server.common.utils.WebSocketUtils;
+import io.klovers.server.domains.chat.models.dtos.MessageDto;
+import io.klovers.server.domains.chat.models.dtos.req.ReqGetMessagesDto;
 import io.klovers.server.domains.chat.models.dtos.req.ReqMsgSendDto;
 import io.klovers.server.domains.chat.services.ChatService;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +27,10 @@ import static java.util.Objects.isNull;
 @EnableWebSocket
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketConfigurer {
-    private final ObjectMapper objectMapper;
     private final ChatService chatService;
-    private final Map<Long, Set<SocketSessionDto>> sessionsMap = new HashMap<>();
+    private final PapagoTranslationService papagoTranslationService;
+    private final WebSocketUtils socketUtils;
+    private final ObjectMapper objectMapper;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
@@ -32,7 +38,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
             @Override
             public void afterConnectionEstablished(WebSocketSession session) throws Exception {
                 log.info("*********************** afterConnectionEstablished **************************");
-                addSession(session);
+                socketUtils.addSession(session);
             }
 
             @Override
@@ -40,15 +46,39 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 log.info("*********************** handleMessage **************************");
                 if (isNull(session.getPrincipal()) || isEmpty(session.getPrincipal().getName()))
                     return;
-                ReqMsgSendDto msgDto = objectMapper.readValue(Objects.toString(message.getPayload()), ReqMsgSendDto.class);
-                msgDto.setSenderUsername(session.getPrincipal().getName());
+                ReqMsgSendDto sendDto = objectMapper.readValue(Objects.toString(message.getPayload()), ReqMsgSendDto.class);
+                sendDto.setSenderUsername(session.getPrincipal().getName());
 
-                WebSocketMessage<String> resultMessage = new TextMessage(objectMapper.writeValueAsString(chatService.send(msgDto)));
+                MessageDto messageDto = chatService.send(sendDto);
 
                 // 해당 하는 socket sessions 에게 메시지 발송
-                Set<SocketSessionDto> sessions = sessionsMap.get(msgDto.getChatId());
-                for (SocketSessionDto sessionDto : sessions)
-                    sessionDto.getSession().sendMessage(resultMessage);
+                Set<SocketSessionDto> sessions = socketUtils.getSessionsByChatId(sendDto.getChatId());
+                for (SocketSessionDto sessionDto : sessions) {
+                    // 번역 후 전송
+                    if (sessionDto.getTargetLang() != null) {
+                        MessageDto translatedMsg = MessageDto.builder()
+                                .id(messageDto.getId())
+                                .content(
+                                        papagoTranslationService.translateText(
+                                                messageDto.getContent(),
+                                                sessionDto.getTargetLang().name()
+                                        )
+                                )
+                                .sender(messageDto.getSender())
+                                .regTs(messageDto.getRegTs())
+                                .modTs(messageDto.getModTs())
+                                .build();
+                        sessionDto
+                                .getSession()
+                                .sendMessage(new TextMessage(objectMapper.writeValueAsString(translatedMsg)));
+                    }
+                    // 번역 하지 않고 전송
+                    else {
+                        sessionDto
+                                .getSession()
+                                .sendMessage(new TextMessage(objectMapper.writeValueAsString(messageDto)));
+                    }
+                }
             }
 
             @Override
@@ -59,7 +89,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
             @Override
             public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
                 log.info("*********************** afterConnectionClosed **************************");
-                removeSession(session);
+                socketUtils.removeSession(session);
             }
 
             @Override
@@ -70,63 +100,4 @@ public class WebSocketConfig implements WebSocketConfigurer {
         }, "/api/websocket/**").setAllowedOrigins("*");
     }
 
-    private void addSession(WebSocketSession session) {
-        Long chatId = getChatIdFromSession(session);
-        Set<SocketSessionDto> prevSessions = sessionsMap.get(chatId);
-
-        // chatId 에 해당하는 sessions 가 없는 경우 새로 만들어줌
-        if (prevSessions == null) {
-            Set<SocketSessionDto> sessions = new HashSet<>();
-            sessions.add(
-                    SocketSessionDto.builder()
-                            .session(session)
-                            .build()
-            );
-            sessionsMap.put(chatId, sessions);
-        }
-        // chatId 에 해당하는 sessions 가 이미 존재하는 경우 add session
-        else {
-            prevSessions.add(
-                    SocketSessionDto.builder()
-                            .session(session)
-                            .build()
-            );
-            sessionsMap.put(chatId, prevSessions);
-        }
-    }
-
-    private void removeSession(WebSocketSession session) {
-        Long chatId = getChatIdFromSession(session);
-        Set<SocketSessionDto> prevSessions = sessionsMap.get(chatId);
-
-        // chatId 에 해당하는 sessions 가 존재할시 해당 session remove
-        if (prevSessions != null && !prevSessions.isEmpty()) {
-            prevSessions.removeIf(sessionDto -> sessionDto.getSession().equals(session));
-        }
-    }
-
-    private Long getChatIdFromSession(WebSocketSession session) {
-        String path = Objects
-                .requireNonNull(session.getUri())
-                .getPath();
-
-        return Long
-                .parseLong(
-                        path.substring(path.lastIndexOf("/") + 1)
-                );
-    }
-
-    private String getUsernameFromSession(WebSocketSession session) {
-        String path = Objects
-                .requireNonNull(session.getUri())
-                .getPath();
-
-        return path
-                .substring(0, path.lastIndexOf("/"))
-                .substring(path.lastIndexOf("/") + 1);
-    }
-
-    public void setTargetLang() {
-
-    }
 }

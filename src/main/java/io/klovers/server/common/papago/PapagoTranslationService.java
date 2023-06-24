@@ -3,6 +3,7 @@ package io.klovers.server.common.papago;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.Charset;
@@ -29,20 +30,22 @@ public class PapagoTranslationService {
         String requestBody = "source=auto&target=" + targetLang + "&text=" + text;
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<PapagoResponse> responseEntity = restTemplate.exchange(
-                papagoApiUrl,
-                HttpMethod.POST,
-                requestEntity,
-                PapagoResponse.class
-        );
-
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            PapagoResponse response = responseEntity.getBody();
-            if (response != null && response.getMessage() != null) {
-                return response.getMessage().getResult().getTranslatedText();
+        try {
+            ResponseEntity<PapagoResponse> responseEntity = restTemplate.exchange(
+                    papagoApiUrl,
+                    HttpMethod.POST,
+                    requestEntity,
+                    PapagoResponse.class
+            );
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                PapagoResponse response = responseEntity.getBody();
+                if (response != null && response.getMessage() != null) {
+                    return response.getMessage().getResult().getTranslatedText();
+                }
             }
+            return text;
+        } catch (HttpClientErrorException e) {
+            return text;
         }
-
-        return null;
     }
 }

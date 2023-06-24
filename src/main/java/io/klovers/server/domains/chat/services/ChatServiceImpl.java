@@ -4,6 +4,7 @@ package io.klovers.server.domains.chat.services;
 import io.klovers.server.common.exceptions.ApiException;
 import io.klovers.server.common.models.dtos.ListResDto;
 import io.klovers.server.common.papago.PapagoTranslationService;
+import io.klovers.server.common.utils.WebSocketUtils;
 import io.klovers.server.domains.chat.models.dtos.ChatDto;
 import io.klovers.server.domains.chat.models.dtos.MessageDto;
 import io.klovers.server.domains.chat.models.dtos.req.ReqGetMessagesDto;
@@ -18,7 +19,6 @@ import io.klovers.server.domains.user.repositories.UserRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -34,6 +34,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatRepo chatRepo;
     private final UserRepo userRepo;
     private final PapagoTranslationService papagoTranslationService;
+    private final WebSocketUtils socketUtils;
 
     @Override
     public MessageDto send(ReqMsgSendDto reqDto) {
@@ -114,15 +115,16 @@ public class ChatServiceImpl implements ChatService {
                 .collect(Collectors.toList());
 
         if (reqDto.getTargetLang() != null) {
+            // socket 에 lang 정보 삽입
+            socketUtils.setTargetLang(reqDto);
+
+            // message 번역
             String target = reqDto.getTargetLang().name();
             for (MessageDto message : messageList) {
-                try {
-                    message.setContent(
-                            papagoTranslationService.translateText(message.getContent(), target)
-                    );
-                } catch (HttpClientErrorException e) {
-                    log.info(":::: Papago 번역 실패 :::: {}", message.getContent());
-                }
+                message.setContent(
+                        papagoTranslationService
+                                .translateText(message.getContent(), target)
+                );
             }
         }
 
