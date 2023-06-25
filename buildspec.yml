@@ -1,0 +1,36 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto11
+#    commands:
+#      - apt-get update -y
+#      - apt-get install -y docker.io
+
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 532757040080.dkr.ecr.ap-northeast-2.amazonaws.com
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - chmod +x ./gradlew
+      - ./gradlew clean build -x test
+      - docker build -t 532757040080.dkr.ecr.ap-northeast-2.amazonaws.com/kf-back:latest .
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push 532757040080.dkr.ecr.ap-northeast-2.amazonaws.com/kf-back:latest
+      - printf '[{"name":"kf-api","imageUri":"%s"}]' 532757040080.dkr.ecr.ap-northeast-2.amazonaws.com/kf-back:latest > imagedefinitions.json
+
+artifacts:
+  files: imagedefinitions.json
+
+cache:
+  paths:
+    - '/root/.m2/**/*'
