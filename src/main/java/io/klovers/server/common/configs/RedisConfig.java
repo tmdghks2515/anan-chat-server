@@ -15,7 +15,7 @@ public class RedisConfig {
     // redis 와 connection 을 생성해 주는 객체
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory("localhost", 6379);
+        return new LettuceConnectionFactory("43.201.193.137", 6379);
     }
 
     /*
