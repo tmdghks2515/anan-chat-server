@@ -23,6 +23,7 @@ pipeline {
 
         stage('Build and Test') {
             steps {
+                sh 'chmod +x ./gradlew'
                 sh "${env.GRADLE_WRAPPER} ${env.GRADLE_OPTIONS} clean build"
             }
         }
