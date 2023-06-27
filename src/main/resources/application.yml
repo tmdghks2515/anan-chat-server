@@ -33,7 +33,7 @@ jwt:
   #  expiration: 10 # 10초
   refresh_expiration: 2592000 # 1 달
 
-front_domain: localhost
+front_domain: 43.201.193.137
 
 papago:
   client-id: 4kDAauR1xX6x_ysJov0e
