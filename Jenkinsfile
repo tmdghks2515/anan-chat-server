@@ -21,6 +21,12 @@ pipeline {
             }
         }
 
+        stage('Build and Test') {
+            steps {
+                sh "${env.GRADLE_WRAPPER} ${env.GRADLE_OPTIONS} clean build"
+            }
+        }
+
         stage('Build and Push Docker Image') {
             steps {
                 script {
@@ -34,11 +40,6 @@ pipeline {
             }
         }
 
-        stage('Build and Test') {
-            steps {
-                sh "${env.GRADLE_WRAPPER} ${env.GRADLE_OPTIONS} clean build"
-            }
-        }
 
         stage('Deploy') {
             steps {
