@@ -1,0 +1,13 @@
+spring:
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://43.201.193.137:3306/klovers
+    username: root
+    password: kuaile2515!
+
+redis:
+  host: 43.201.193.137
+  port: 6379
+
+front_domain: 43.201.193.137

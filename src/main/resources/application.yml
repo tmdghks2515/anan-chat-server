@@ -1,3 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: loc
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+---
+
 server:
   port: 8080
 
@@ -11,29 +22,17 @@ spring:
       hibernate:
         id:
           new_generator_mappings: true
-        show_sql: true
-        format_sql: true
-        default_batch_fetch_size: 100
-        # use_sql_comments: true
 
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
 
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://43.201.193.137:3306/klovers
-    username: root
-    password: kuaile2515!
-
 jwt:
   secret: BvPHGM8C0ia4uOuxxqPD5DTbWC9F9TWvPStp3pb7CRo0oK2mJ3pd3FG4lxA9i8bj6OTbadwezxgeEByY
   expiration: 3600 # 1시간
   #  expiration: 10 # 10초
   refresh_expiration: 2592000 # 1 달
-
-front_domain: 43.201.193.137
 
 papago:
   client-id: 4kDAauR1xX6x_ysJov0e
